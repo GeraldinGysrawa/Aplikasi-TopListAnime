@@ -21,9 +21,9 @@ data class OnboardingPage(
 )
 
 val pages = listOf(
-    OnboardingPage("Welcome", "Explore anime!", R.drawable.ic_launcher_foreground),
-    OnboardingPage("Search", "Find your favorites!", R.drawable.ic_launcher_foreground),
-    OnboardingPage("Profile", "Make it yours!", R.drawable.ic_launcher_foreground)
+    OnboardingPage("Welcome", "Explore anime!", R.drawable.naruto_kecil),
+    OnboardingPage("Search", "Find your favorites!", R.drawable.naruto_2),
+    OnboardingPage("Profile", "Make it yours!", R.drawable.naruto_3)
 )
 
 @Composable

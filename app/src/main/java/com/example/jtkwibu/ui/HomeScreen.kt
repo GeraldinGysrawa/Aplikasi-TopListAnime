@@ -19,13 +19,22 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.example.jtkwibu.data.AnimeEntity
+import com.example.jtkwibu.viewmodel.HomeViewModel
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.hilt.navigation.compose.hiltViewModel
+
+
+
 
 @Composable
 fun HomeScreen(
     onAnimeClick: (Int) -> Unit,
-    viewModel: com.example.jtkwibu.viewmodel.HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    // Collect the paging items from view Model.
     val animeList = viewModel.animeList.collectAsLazyPagingItems()
 
     LazyVerticalGrid(
@@ -33,33 +42,37 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp)
     ) {
-        itemsIndexed(items = List(animeList.itemCount) { it }) { index, _ ->
-            animeList[index]?.let { anime ->
-                NetflixAnimeItem(anime = anime, onClick = { onAnimeClick(anime.malId) })
+        items(animeList.itemCount) { index ->
+            animeList[index]?.let { anime ->  // Gunakan get(index) yang lebih aman
+                NetflixAnimeItem(
+                    anime = anime,
+                    onClick = { onAnimeClick(anime.malId) },
+                    onBookmarkClick = {
+                        viewModel.toggleBookmark(anime.malId, anime.isBookmarked)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun NetflixAnimeItem(anime: AnimeEntity, onClick: () -> Unit) {
+fun NetflixAnimeItem(anime: AnimeEntity, onClick: () -> Unit, onBookmarkClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
-            .aspectRatio(1f) // Ensures the card is square
+            .aspectRatio(1f)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.medium,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Display the anime image
             AsyncImage(
                 model = anime.imageUrl,
                 contentDescription = anime.title,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-            // Overlay a gradient at the bottom for better text readability
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -71,7 +84,6 @@ fun NetflixAnimeItem(anime: AnimeEntity, onClick: () -> Unit) {
                         )
                     )
             )
-            // Display the anime title on the gradient
             Text(
                 text = anime.title,
                 modifier = Modifier
@@ -81,6 +93,19 @@ fun NetflixAnimeItem(anime: AnimeEntity, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1
             )
+            IconButton(
+                onClick = onBookmarkClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = if (anime.isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Bookmark",
+                    tint = if (anime.isBookmarked) Color.Red else Color.White
+                )
+            }
         }
     }
 }
+
